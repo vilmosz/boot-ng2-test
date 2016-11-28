@@ -1,0 +1,15 @@
+server:
+  port: 8080
+  
+spring:
+  datasource:
+    url: jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000;MVCC=TRUE
+    username: sa
+    initialize: true
+  data:
+    rest:
+      base-path: "api"
+
+spring.jpa:
+    hibernate.ddl-auto: update
+    show-sql: true

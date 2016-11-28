@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.ixxus.com/bpmn/model/journal/review">
+  <process id="journalReviewProcess" name="Journal Review Process" isExecutable="true">
+    <documentation>Journal Review Process Model</documentation>
+    <startEvent id="startJournalReview" name="Start" activiti:initiator="${initiator.id}" activiti:formKey="startForm">
+      <documentation>Start event for the Journal Review</documentation>
+    </startEvent>
+    <endEvent id="endJournalReview" name="End">
+      <documentation>End event for the Journal Review</documentation>
+    </endEvent>
+    <userTask id="userClaimTask" name="User Claim Task" activiti:assignee="${reviewer.id}">
+      <documentation>User Task to Claim/Decline Task</documentation>
+    </userTask>
+    <userTask id="userReviewTask" name="User Review Task">
+      <documentation>Review content
+Fill in form on the review task</documentation>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <serviceTask id="declineNotificationMailTask" name="Declined Notification" activiti:type="mail">
+      <documentation>User has declined the review and email notification must be sent to the initiator</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:string><![CDATA[vilmos.zsombori@ixxus.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Article review declined]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:string><![CDATA[<p>Declined</p>]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flowDeclined" name="Decline" sourceRef="exclusivegateway1" targetRef="declineNotificationMailTask"></sequenceFlow>
+    <sequenceFlow id="flowDeclinedReviewEnd" sourceRef="declineNotificationMailTask" targetRef="endJournalReview"></sequenceFlow>
+    <serviceTask id="completeReviewMailTask" name="Complete Review Notification" activiti:type="mail">
+      <documentation>User has submitted their feedback and the review is complete. An email notification must be sent to the initiator</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:string><![CDATA[vilmos.zsombori@ixxus.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Article review has been completed]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:string><![CDATA[<p>Completed</p>]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flowUserCompleteReview" sourceRef="userReviewTask" targetRef="completeReviewMailTask"></sequenceFlow>
+    <sequenceFlow id="flowCompleteReviewEnd" sourceRef="completeReviewMailTask" targetRef="endJournalReview"></sequenceFlow>
+    <serviceTask id="acceptNotificationMailTask" name="Accepted Notification" activiti:type="mail">
+      <documentation>User has accepted the review and email notification must be sent to the initiator</documentation>
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:string><![CDATA[vilmos.zsombori@ixxus.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Article review claimed]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:string><![CDATA[<p>Claimed</p>]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flowDecision" sourceRef="userClaimTask" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flowAccepted" name="Accept" sourceRef="exclusivegateway1" targetRef="acceptNotificationMailTask"></sequenceFlow>
+    <sequenceFlow id="flowUserReview" sourceRef="acceptNotificationMailTask" targetRef="userReviewTask"></sequenceFlow>
+    <sequenceFlow id="flowStart" sourceRef="startJournalReview" targetRef="userClaimTask" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_journalReviewProcess">
+    <bpmndi:BPMNPlane bpmnElement="journalReviewProcess" id="BPMNPlane_journalReviewProcess">
+      <bpmndi:BPMNShape bpmnElement="startJournalReview" id="BPMNShape_startJournalReview">
+        <omgdc:Bounds height="35.0" width="35.0" x="180.0" y="300.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endJournalReview" id="BPMNShape_endJournalReview">
+        <omgdc:Bounds height="35.0" width="35.0" x="1019.0" y="309.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="userClaimTask" id="BPMNShape_userClaimTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="281.0" y="290.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="userReviewTask" id="BPMNShape_userReviewTask">
+        <omgdc:Bounds height="81.0" width="130.0" x="690.0" y="174.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="479.0" y="297.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="declineNotificationMailTask" id="BPMNShape_declineNotificationMailTask">
+        <omgdc:Bounds height="67.0" width="133.0" x="679.0" y="385.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="completeReviewMailTask" id="BPMNShape_completeReviewMailTask">
+        <omgdc:Bounds height="88.0" width="123.0" x="860.0" y="171.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="acceptNotificationMailTask" id="BPMNShape_acceptNotificationMailTask">
+        <omgdc:Bounds height="83.0" width="122.0" x="530.0" y="173.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flowDeclined" id="BPMNEdge_flowDeclined">
+        <omgdi:waypoint x="499.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="499.0" y="418.0"></omgdi:waypoint>
+        <omgdi:waypoint x="679.0" y="418.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="36.0" x="510.0" y="336.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowDeclinedReviewEnd" id="BPMNEdge_flowDeclinedReviewEnd">
+        <omgdi:waypoint x="812.0" y="418.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1036.0" y="418.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1036.0" y="344.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowUserCompleteReview" id="BPMNEdge_flowUserCompleteReview">
+        <omgdi:waypoint x="820.0" y="214.0"></omgdi:waypoint>
+        <omgdi:waypoint x="860.0" y="215.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowCompleteReviewEnd" id="BPMNEdge_flowCompleteReviewEnd">
+        <omgdi:waypoint x="983.0" y="215.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1036.0" y="214.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1036.0" y="309.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowDecision" id="BPMNEdge_flowDecision">
+        <omgdi:waypoint x="386.0" y="317.0"></omgdi:waypoint>
+        <omgdi:waypoint x="479.0" y="317.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowAccepted" id="BPMNEdge_flowAccepted">
+        <omgdi:waypoint x="499.0" y="297.0"></omgdi:waypoint>
+        <omgdi:waypoint x="499.0" y="225.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="214.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="34.0" x="510.0" y="283.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowUserReview" id="BPMNEdge_flowUserReview">
+        <omgdi:waypoint x="652.0" y="214.0"></omgdi:waypoint>
+        <omgdi:waypoint x="690.0" y="214.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowStart" id="BPMNEdge_flowStart">
+        <omgdi:waypoint x="215.0" y="317.0"></omgdi:waypoint>
+        <omgdi:waypoint x="281.0" y="317.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
